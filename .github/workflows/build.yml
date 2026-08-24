@@ -21,12 +21,16 @@ jobs:
     - name: Extract and setup project
       run: |
         unzip -o *.zip
-        # في حال وجود الكود داخل مجلد فرعي يتم رفعه للمسار الرئيسي
-        if [ ! -f "gradlew" ]; then
-          DIR=$(find . -mindepth 2 -maxdepth 2 -name "gradlew" -exec dirname {} \;)
-          if [ -n "$DIR" ]; then
-            cp -r $DIR/* .
+        # البحث عن مكان ملف gradlew ونقله للمجلد الرئيسي للمشروع
+        GRADLEW_PATH=$(find . -name "gradlew" -print -quit)
+        if [ -n "$GRADLEW_PATH" ]; then
+          PROJECT_DIR=$(dirname "$GRADLEW_PATH")
+          if [ "$PROJECT_DIR" != "." ]; then
+            cp -r "$PROJECT_DIR"/* .
           fi
+        else
+          echo "Error: gradlew not found!"
+          exit 1
         fi
 
     - name: Make gradlew executable
