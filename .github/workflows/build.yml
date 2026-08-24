@@ -31,10 +31,8 @@ jobs:
           mv "$DIR"/* . 2>/dev/null || true
         fi
         
-        # إنشاء ملف local.properties لربط الـ SDK
+        # إنشاء local.properties وإلغاء وضع GUI لـ KSP
         echo "sdk.dir=$ANDROID_HOME" > local.properties
-        
-        # إضافة إعدادات حل مشكلة KSP في السحابة
         echo "org.gradle.jvmargs=-Xmx2048m -Djava.awt.headless=true" >> gradle.properties
         echo "ksp.incremental=false" >> gradle.properties
         
@@ -51,3 +49,4 @@ jobs:
       with:
         name: app-debug
         path: "**/outputs/apk/debug/*.apk"
+ 
