@@ -30,8 +30,13 @@ jobs:
           shopt -s dotglob
           mv "$DIR"/* . 2>/dev/null || true
         fi
-        # إنشاء ملف local.properties لربط مسار الـ SDK تلقائياً
+        
+        # إنشاء ملف local.properties لربط الـ SDK
         echo "sdk.dir=$ANDROID_HOME" > local.properties
+        
+        # إضافة إعدادات حل مشكلة KSP في السحابة
+        echo "org.gradle.jvmargs=-Xmx2048m -Djava.awt.headless=true" >> gradle.properties
+        echo "ksp.incremental=false" >> gradle.properties
         
         if [ ! -f "gradlew" ]; then
           gradle wrapper
@@ -39,7 +44,7 @@ jobs:
         chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon -Djava.awt.headless=true -Pksp.incremental=false
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
