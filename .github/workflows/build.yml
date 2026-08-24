@@ -24,21 +24,22 @@ jobs:
     - name: Extract and Organize Project
       run: |
         unzip -o *.zip
-        # البحث عن المجلد الفعلي ونقل كافة محتوياته للمسار الرئيسي
         ROOT_FILE=$(find . -mindepth 2 -name "settings.gradle*" -o -name "build.gradle*" | head -n 1)
         if [ -n "$ROOT_FILE" ]; then
           DIR=$(dirname "$ROOT_FILE")
           shopt -s dotglob
           mv "$DIR"/* . 2>/dev/null || true
         fi
-        # إنشاء ملف الإقلاع للـ Gradle في حال عدم وجوده
+        # إنشاء ملف local.properties لربط مسار الـ SDK تلقائياً
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        
         if [ ! -f "gradlew" ]; then
           gradle wrapper
         fi
         chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
