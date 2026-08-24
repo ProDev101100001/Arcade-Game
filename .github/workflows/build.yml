@@ -33,7 +33,7 @@ jobs:
         
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         
-        # تطبيق إعدادات KSP الحازمة على مستوى النظام العالمي والمشروع
+        # إعدادات JVM وKSP
         mkdir -p ~/.gradle
         cat << 'EOF' > ~/.gradle/gradle.properties
         org.gradle.jvmargs=-Xmx4096m -Djava.awt.headless=true --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED
@@ -44,6 +44,14 @@ jobs:
 
         cp ~/.gradle/gradle.properties ./gradle.properties
         
+        # إنشاء مفتاح debug.keystore تلقائياً
+        keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        
+        # إنشاء ملف google-services.json لتفادي خطأ خدمات جوجل
+        DUMMY_JSON='{"project_info":{"project_number":"123","project_id":"dummy","storage_bucket":"dummy.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123:android:123","android_client_info":{"package_name":"com.example"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}]}]}'
+        echo "$DUMMY_JSON" > google-services.json
+        mkdir -p app && echo "$DUMMY_JSON" > app/google-services.json
+
         if [ ! -f "gradlew" ]; then
           gradle wrapper
         fi
